@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../school-ms/services/identity-service"
 		}
 	],
 	"settings": {}
