@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { authService } from '../services/authService';
+import { authService } from '../features/auth/authService';
 import { User, AuthResponse } from '../types';
 import { 
   setCredentials, 
@@ -13,7 +13,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<AuthResponse>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => void;
 }
 
@@ -34,12 +34,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // but we keep the flag if you want to add async token validation later.
   const loading = false; 
 
-  const login = async (email: string, password: string): Promise<AuthResponse> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string; user?: User }> => {
     try {
+      // authService.login now returns the User object directly or throws
       const userData = await authService.login(email, password);
       
       // Dispatch action to Redux
-      // Redux slice will handle updating LocalStorage automatically
       if (userData.token) {
         dispatch(setCredentials({ user: userData, token: userData.token }));
         return { success: true, user: userData };
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { success: false, error: "No token received" };
       }
     } catch (error: any) {
-      return { success: false, error: error.message };
+      return { success: false, error: error.message || "Login failed" };
     }
   };
 

@@ -1,0 +1,47 @@
+# API Architecture & Integration Summary
+Date: Monday, 12 January 2026
+
+## 1. Core Architecture Changes
+- **Centralized Axios Client**: Moved and renamed `src/services/api.ts` to `src/services/apiClient.ts`.
+- **Environment Config**: Created `.env` with `VITE_API_URL=https://school-ms-d0rq.onrender.com/api/v1`.
+- **Shared Types**: Created `src/services/types.ts` for common interfaces.
+
+## 2. Authentication Integration (Live API)
+Integrated the real backend authentication system based on the provided technical specifications.
+
+- **Endpoint**: `POST /auth/signin`
+- **Type Refactoring**: 
+    - `BackendUser`: Raw shape from API (first_name, last_name, etc.).
+    - `User`: Frontend model extending BackendUser with derived `name` field.
+    - `AuthResponse`: Defined as `{ accessToken: string, user: BackendUser }`.
+- **Service Logic**: 
+    - `authService.login`: Now performs real HTTP request, maps tokens, and transforms user data for the UI.
+    - `authService.getProfile`: Implemented with full type mapping for `/auth/me`.
+- **Context & Hooks**: Updated `AuthContext.tsx` and `authApiSlice` to align with new data structures and endpoints.
+
+## 3. Modular Feature Scaffolding
+Created "Plug & Play" structures for other modules to ensure scalability.
+
+- **Peoples Module**: `api/api.ts` and `api/types.ts` created for Student and Staff management.
+- **Front Office Module**: `api/api.ts` and `api/types.ts` created for Admission Enquiries.
+
+## 4. Directory Structure
+src/
+├── services/
+│   ├── apiClient.ts      # Shared Axios Instance
+│   └── types.ts          # Shared API Types
+├── store/
+│   └── apiSlice.ts       # RTK Query Base
+└── features/
+    ├── auth/             # Integrated with Live API
+    │   ├── api.ts        
+    │   └── authService.ts 
+    ├── peoples/          # Scaffolded for Dev
+    │   └── api/
+    └── front-office/     # Scaffolded for Dev
+        └── api/
+
+## 5. Verification
+- **Linting**: `npm run lint` passed.
+- **Build**: `npm run build` passed.
+- **Contract Testing**: Logic verified against provided Sign-In API screenshots.

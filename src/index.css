@@ -64,3 +64,12 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Ensure the chatbot is visible and positioned correctly */
+elevenlabs-convai {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+}
+

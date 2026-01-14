@@ -38,6 +38,7 @@ import {
   Settings,
   ChevronRight,
   School,
+  X,
   LucideIcon
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
@@ -177,7 +178,12 @@ const MENU_ITEMS: MenuSection[] = [
   }
 ];
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Front Office']); // Default expanded for demo
   const location = useLocation();
 
@@ -194,87 +200,107 @@ const Sidebar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
 
   return (
-    <aside className={styles.sidebar}>
-      {/* Brand Header */}
-      <div className={styles.brand}>
-        <div className={styles.brandLogo}>SF</div>
-        <div className={styles.brandName}>SF-Software</div>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      <div 
+        className={`${styles.overlay} ${isOpen ? styles.showOverlay : ''}`} 
+        onClick={onClose}
+      />
 
-      <div className={styles.scrollArea}>
-        {/* School Card */}
-        <div className={styles.schoolCard}>
-          <div className={styles.schoolLogo}>
-            <School size={20} color="#4318ff" />
-          </div>
-          <div className={styles.schoolName}>School Name</div>
+      <aside className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
+        {/* Brand Header */}
+        <div className={styles.brand}>
+          <div className={styles.brandLogo}>SF</div>
+          <div className={styles.brandName}>SF-Software</div>
+          {/* Close Button for Mobile */}
+          <button className={styles.closeBtn} onClick={onClose}>
+            <X size={20} />
+          </button>
         </div>
 
-        {/* Menu Items */}
-        {MENU_ITEMS.map((section, index) => (
-          <div key={index}>
-            <div className={styles.sectionHeader}>
-              <span className={styles.sectionTitle}>{section.section}</span>
-              <div className={styles.sectionLine}></div>
+        <div className={styles.scrollArea}>
+          {/* School Card */}
+          <div className={styles.schoolCard}>
+            <div className={styles.schoolLogo}>
+              <School size={20} color="#4318ff" />
             </div>
-            
-            <nav>
-              {section.items.map((item, itemIndex) => {
-                const hasSub = item.subItems && item.subItems.length > 0;
-                const expanded = isExpanded(item.label);
-
-                return (
-                  <div key={itemIndex}>
-                    {hasSub ? (
-                      // Parent Item with Submenu
-                      <div 
-                        className={`${styles.navItem} ${isActive(item.path) ? styles.active : ''}`}
-                        onClick={() => toggleMenu(item.label)}
-                      >
-                        <div className={styles.navItemContent}>
-                          <item.icon className={styles.icon} />
-                          <span>{item.label}</span>
-                        </div>
-                        <ChevronRight 
-                          size={16} 
-                          className={`${styles.arrowIcon} ${expanded ? styles.rotateArrow : ''}`} 
-                        />
-                      </div>
-                    ) : (
-                      // Standard Link Item
-                      <NavLink 
-                        to={item.path} 
-                        className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
-                      >
-                        <div className={styles.navItemContent}>
-                          <item.icon className={styles.icon} />
-                          <span>{item.label}</span>
-                        </div>
-                      </NavLink>
-                    )}
-
-                    {/* Submenu Rendering */}
-                    {hasSub && expanded && (
-                      <div className={styles.submenu}>
-                        {item.subItems?.map((sub, subIndex) => (
-                          <NavLink
-                            key={subIndex}
-                            to={sub.path}
-                            className={({ isActive }) => `${styles.subItem} ${isActive ? styles.active : ''}`}
-                          >
-                            {sub.label}
-                          </NavLink>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </nav>
+            <div className={styles.schoolName}>School Name</div>
           </div>
-        ))}
-      </div>
-    </aside>
+
+          {/* Menu Items */}
+          {MENU_ITEMS.map((section, index) => (
+            <div key={index}>
+              <div className={styles.sectionHeader}>
+                <span className={styles.sectionTitle}>{section.section}</span>
+                <div className={styles.sectionLine}></div>
+              </div>
+              
+              <nav>
+                {section.items.map((item, itemIndex) => {
+                  const hasSub = item.subItems && item.subItems.length > 0;
+                  const expanded = isExpanded(item.label);
+
+                  return (
+                    <div key={itemIndex}>
+                      {hasSub ? (
+                        // Parent Item with Submenu
+                        <div 
+                          className={`${styles.navItem} ${isActive(item.path) ? styles.active : ''}`}
+                          onClick={() => toggleMenu(item.label)}
+                        >
+                          <div className={styles.navItemContent}>
+                            <item.icon className={styles.icon} />
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronRight 
+                            size={16} 
+                            className={`${styles.arrowIcon} ${expanded ? styles.rotateArrow : ''}`} 
+                          />
+                        </div>
+                      ) : (
+                        // Standard Link Item
+                        <NavLink 
+                          to={item.path} 
+                          className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
+                          onClick={() => {
+                            // Close sidebar on mobile when link clicked
+                            if (window.innerWidth <= 768) onClose();
+                          }}
+                        >
+                          <div className={styles.navItemContent}>
+                            <item.icon className={styles.icon} />
+                            <span>{item.label}</span>
+                          </div>
+                        </NavLink>
+                      )}
+
+                      {/* Submenu Rendering */}
+                      {hasSub && expanded && (
+                        <div className={styles.submenu}>
+                          {item.subItems?.map((sub, subIndex) => (
+                            <NavLink
+                              key={subIndex}
+                              to={sub.path}
+                              className={({ isActive }) => `${styles.subItem} ${isActive ? styles.active : ''}`}
+                              onClick={() => {
+                                // Close sidebar on mobile when link clicked
+                                if (window.innerWidth <= 768) onClose();
+                              }}
+                            >
+                              {sub.label}
+                            </NavLink>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
+        </div>
+      </aside>
+    </>
   );
 };
 
