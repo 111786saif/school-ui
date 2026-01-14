@@ -1,28 +1,31 @@
-# API Architecture Restructuring Summary
+# API Architecture & Integration Summary
 Date: Monday, 12 January 2026
 
 ## 1. Core Architecture Changes
-- **Centralized Axios Client**: Moved and renamed `src/services/api.ts` to `src/services/apiClient.ts`. This acts as the single source of truth for global HTTP configurations, headers, and interceptors.
-- **Shared Types**: Created `src/services/types.ts` to house common API response/request interfaces.
-- **Root RTK Query Slice**: Maintained `src/store/apiSlice.ts` as the base for all feature-specific API injections.
+- **Centralized Axios Client**: Moved and renamed `src/services/api.ts` to `src/services/apiClient.ts`.
+- **Environment Config**: Created `.env` with `VITE_API_URL=https://school-ms-d0rq.onrender.com/api/v1`.
+- **Shared Types**: Created `src/services/types.ts` for common interfaces.
 
-## 2. Modular Feature Updates
-Each feature now contains its own `api/` directory with self-contained logic and types, facilitating a "plug-and-play" architecture.
+## 2. Authentication Integration (Live API)
+Integrated the real backend authentication system based on the provided technical specifications.
 
-### A. Authentication Module (`src/features/auth/`)
-- **RTK Query**: `src/features/auth/api.ts` handles automated login mutations.
-- **Auth Service**: `src/features/auth/authService.ts` contains manual logic (mock login, token management).
-- **Context Integration**: Updated `AuthContext.tsx` to reflect new import paths.
+- **Endpoint**: `POST /auth/signin`
+- **Type Refactoring**: 
+    - `BackendUser`: Raw shape from API (first_name, last_name, etc.).
+    - `User`: Frontend model extending BackendUser with derived `name` field.
+    - `AuthResponse`: Defined as `{ accessToken: string, user: BackendUser }`.
+- **Service Logic**: 
+    - `authService.login`: Now performs real HTTP request, maps tokens, and transforms user data for the UI.
+    - `authService.getProfile`: Implemented with full type mapping for `/auth/me`.
+- **Context & Hooks**: Updated `AuthContext.tsx` and `authApiSlice` to align with new data structures and endpoints.
 
-### B. Peoples Module (`src/features/peoples/`)
-- **New API Slice**: Created `src/features/peoples/api/api.ts` with endpoints for `getStudents` and `getStaff`.
-- **Feature Types**: Created `src/features/peoples/api/types.ts` defining `Student` and `Staff` interfaces.
+## 3. Modular Feature Scaffolding
+Created "Plug & Play" structures for other modules to ensure scalability.
 
-### C. Front Office Module (`src/features/front-office/`)
-- **New API Slice**: Created `src/features/front-office/api/api.ts` with endpoints for `getAdmissionEnquiries`.
-- **Feature Types**: Created `src/features/front-office/api/types.ts` defining `AdmissionEnquiry` interfaces.
+- **Peoples Module**: `api/api.ts` and `api/types.ts` created for Student and Staff management.
+- **Front Office Module**: `api/api.ts` and `api/types.ts` created for Admission Enquiries.
 
-## 3. Directory Structure After Changes
+## 4. Directory Structure
 src/
 ├── services/
 │   ├── apiClient.ts      # Shared Axios Instance
@@ -30,18 +33,15 @@ src/
 ├── store/
 │   └── apiSlice.ts       # RTK Query Base
 └── features/
-    ├── auth/
-    │   ├── api.ts        # Auth RTK Query
-    │   └── authService.ts # Auth Logic
-    ├── peoples/
+    ├── auth/             # Integrated with Live API
+    │   ├── api.ts        
+    │   └── authService.ts 
+    ├── peoples/          # Scaffolded for Dev
     │   └── api/
-    │       ├── api.ts    # Peoples RTK Query
-    │       └── types.ts  # Peoples Types
-    └── front-office/
+    └── front-office/     # Scaffolded for Dev
         └── api/
-            ├── api.ts    # Front Office RTK Query
-            └── types.ts  # Front Office Types
 
-## 4. Verification Results
-- **Linting**: `npm run lint` passed with zero errors.
-- **Build**: `npm run build` completed successfully, ensuring all imports and dependencies are correctly resolved.
+## 5. Verification
+- **Linting**: `npm run lint` passed.
+- **Build**: `npm run build` passed.
+- **Contract Testing**: Logic verified against provided Sign-In API screenshots.
