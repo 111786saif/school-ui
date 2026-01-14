@@ -1,5 +1,7 @@
 # School Management System
 
+# Test
+
 This project is a comprehensive School Management System built with **React**, **TypeScript**, and **Vite**.
 
 It uses a standardized architecture for state management, data fetching, and form handling to ensure scalability and maintainability.
