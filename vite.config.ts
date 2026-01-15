@@ -38,13 +38,4 @@ export default defineConfig({
       }
     })
   ],
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://school-ms-d0rq.onrender.com',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
 })
