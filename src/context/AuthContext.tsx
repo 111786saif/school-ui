@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { authService } from '../features/auth/authService';
 import { User, AuthResponse } from '../types';
@@ -14,7 +14,7 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,14 +25,30 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState<boolean>(true);
   
   // Read state directly from Redux Store (Single Source of Truth)
   const user = useSelector(selectCurrentUser);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   
-  // Redux handles initialization via initialState, so loading is practically instant
-  // but we keep the flag if you want to add async token validation later.
-  const loading = false; 
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('token');
+      // Always fetch fresh profile if token exists to ensure roles/permissions are up to date
+      if (token) {
+        try {
+          const userData = await authService.getProfile();
+          dispatch(setCredentials({ user: userData, token }));
+        } catch (error) {
+          console.error("Failed to fetch profile on init", error);
+          // Optional: dispatch(logoutAction()) if you want to force logout on invalid token
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
+  }, [dispatch]); // Removed 'user' dependency to avoid infinite loop, ran once on mount
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string; user?: User }> => {
     try {
@@ -51,11 +67,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    // Dispatch logout action to Redux
-    // Redux slice will handle clearing LocalStorage automatically
+  const logout = async () => {
+    // Dispatch logout action to Redux (Immediate UI update)
     dispatch(logoutAction());
-    authService.logout();
+    
+    // Call server-side logout
+    await authService.logout();
   };
 
   return (

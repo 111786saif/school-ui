@@ -1,6 +1,6 @@
 import React, { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import styles from '../pages/LoginPage.module.css';
 
@@ -31,23 +31,32 @@ export const LoginForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      {error && <div className={styles.errorMessage}>{error}</div>}
+      {error && (
+        <div className={styles.errorMessage}>
+          <AlertCircle size={18} />
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className={styles.formGroup}>
-        <label className={styles.label}>Username</label>
-        <input
-          type="text"
-          className={styles.input}
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          placeholder="Enter your username"
-        />
+        <label className={styles.label}>Username or ID</label>
+        <div className={styles.inputWrapper}>
+          <User size={18} className={styles.inputIcon} />
+          <input
+            type="text"
+            className={styles.input}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            placeholder="Enter your username"
+          />
+        </div>
       </div>
 
       <div className={styles.formGroup}>
         <label className={styles.label}>Password</label>
         <div className={styles.inputWrapper}>
+          <Lock size={18} className={styles.inputIcon} />
           <input
             type={showPassword ? "text" : "password"}
             className={styles.input}
@@ -56,7 +65,12 @@ export const LoginForm: React.FC = () => {
             required
             placeholder="Enter your password"
           />
-          <div className={styles.eyeIcon} onClick={() => setShowPassword(!showPassword)}>
+          <div 
+            className={styles.eyeIcon} 
+            onClick={() => setShowPassword(!showPassword)}
+            role="button"
+            tabIndex={0}
+          >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </div>
         </div>
@@ -64,14 +78,15 @@ export const LoginForm: React.FC = () => {
 
       <div className={styles.actions}>
         <label className={styles.checkboxGroup}>
-          <input type="checkbox" />
-          <span>Remember Me</span>
+          <input type="checkbox" className={styles.checkbox} />
+          <span className={styles.rememberText}>Remember me</span>
         </label>
-        <a href="#" className={styles.forgotLink}>Forgot Password?</a>
+        <a href="#" className={styles.forgotLink}>Forgot password?</a>
       </div>
 
-      <button type="submit" className={styles.button} disabled={isSubmitting}>
+      <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
         {isSubmitting ? 'Signing in...' : 'Sign In'}
+        {!isSubmitting && <ArrowRight size={18} />}
       </button>
     </form>
   );
