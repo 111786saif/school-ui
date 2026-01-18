@@ -57,7 +57,7 @@ const FrontOfficeSetupPage: React.FC = () => {
       <div className={styles.setupGrid}>
         {/* Left Column: Add Category Form */}
         <div className={styles.leftColumn}>
-            <Card title="Add Category" icon={<Settings size={20} className="text-gray-400" />}>
+            <Card title="Add Category" headerActions={<Settings size={20} className="text-gray-400" />}>
                 <form onSubmit={handleSubmit} className={styles.formContainer}>
                     <Select 
                         label="Group Key"
