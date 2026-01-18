@@ -86,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           {profileOpen && (
             <div className={styles.userDropdown}>
               <div className={styles.userDropdownHeader}>
-                <span className={styles.userName}>{user?.name || 'Guest User'}</span>
+                <span className={styles.userName}>{user?.username || 'Guest User'}</span>
                 <span className={styles.userRole}>{user?.role || 'Visitor'}</span>
               </div>
               

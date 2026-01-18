@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
-import { Plus, X, ChevronsUpDown } from 'lucide-react';
+import { Plus, X, Search, Filter, Mail, Package, FileText, Upload, Download, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import styles from './PostalLogPage.module.css';
+
+// Standardized UI Components
+import PageHeader from '../../../components/ui/PageHeader';
+import Button from '../../../components/ui/Button';
+import Card from '../../../components/ui/Card';
+import Input from '../../../components/ui/Input';
+import Select from '../../../components/ui/Select';
 
 const PostalLogPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [directionFilter, setDirectionFilter] = useState('');
+  
   const [formData, setFormData] = useState({
     direction: 'Received',
     date: new Date().toISOString().slice(0, 10),
@@ -12,10 +22,11 @@ const PostalLogPage: React.FC = () => {
     toTitle: '',
     referenceNo: '',
     courierName: '',
+    note: '',
     attachment: null as File | null,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -32,213 +43,249 @@ const PostalLogPage: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const directionOptions = [
+    { value: '', label: 'All Directions' },
+    { value: 'Dispatch', label: 'Dispatch' },
+    { value: 'Receive', label: 'Receive' },
+  ];
+
+  const modalDirectionOptions = [
+     { value: 'Received', label: 'Received' },
+     { value: 'Dispatch', label: 'Dispatch' },
+  ];
+
+  const postalTypeOptions = [
+      { value: '', label: 'Select Type', disabled: true },
+      { value: 'Letter', label: 'Letter' },
+      { value: 'Parcel', label: 'Parcel' },
+      { value: 'Document', label: 'Document' },
+      { value: 'Other', label: 'Other' },
+  ];
+
   return (
     <div className={styles.pageContainer}>
-      <div className={styles.pageHeader}>
-        <div>
-          <h1 className={styles.title}>Postal Dispatch/Receive</h1>
-          <div className={styles.breadcrumbs}>Dashboard / Front Office</div>
-        </div>
-        <button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
-          <Plus size={18} /> New Postal
-        </button>
-      </div>
+      <PageHeader 
+        title="Postal Dispatch/Receive" 
+        breadcrumbs="Dashboard / Front Office / Postal"
+        actions={
+          <Button 
+            icon={<Plus size={18} />} 
+            onClick={() => setIsModalOpen(true)}
+          >
+            New Postal
+          </Button>
+        }
+      />
 
-      <div className={styles.contentCard}>
-        <div className={styles.controlsRow} style={{ marginBottom: '24px' }}>
-          <div className={styles.filterGroup}>
-            <label className={styles.label}>Direction</label>
-            <div className={styles.filterControls}>
-              <select className={styles.selectInput}>
-                <option value="All">All</option>
-                <option value="Dispatch">Dispatch</option>
-                <option value="Receive">Receive</option>
-              </select>
-              <button className={styles.filterButton}>Filter</button>
-            </div>
-          </div>
+      <Card className={styles.mainCard}>
+        {/* Filter Section */}
+        <div className={styles.filterSection}>
+           <div className={styles.searchBox}>
+              <Input 
+                placeholder="Search by Title or Ref No..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                icon={<Search size={18} className="text-gray-400" />}
+              />
+           </div>
+           
+           <div className={styles.filterControls}>
+              <Select 
+                options={directionOptions}
+                value={directionFilter}
+                onChange={(e) => setDirectionFilter(e.target.value)}
+                className={styles.filterSelect}
+              />
+              <Button variant="secondary" icon={<Filter size={16} />}>Filter</Button>
+           </div>
         </div>
 
-        <div className={styles.controlsRow} style={{ justifyContent: 'space-between' }}>
+        {/* Table Controls */}
+        <div className={styles.controlsRow}>
           <div className={styles.entriesControl}>
-            Row Per Page 
-            <select className={styles.entriesSelect}>
-              <option>10</option>
-              <option>25</option>
-              <option>50</option>
-            </select>
-            Entries
-          </div>
-          <div style={{ position: 'relative' }}>
-             <input type="text" placeholder="Search" className={styles.searchInput} style={{ minWidth: '200px' }} />
+            <span>Show</span>
+            <Select 
+              options={[{value:'10', label:'10'}, {value:'25', label:'25'}, {value:'50', label:'50'}]} 
+              className={styles.entriesSelect}
+            />
+            <span>entries</span>
           </div>
         </div>
 
+        {/* Table */}
         <div className={styles.tableContainer}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>
-                  <div className={styles.thContent}>
-                    Type <ChevronsUpDown size={14} className={styles.sortIcon} />
-                  </div>
-                </th>
-                <th>
-                  <div className={styles.thContent}>
-                    Ref No <ChevronsUpDown size={14} className={styles.sortIcon} />
-                  </div>
-                </th>
-                <th>
-                  <div className={styles.thContent}>
-                    Title <ChevronsUpDown size={14} className={styles.sortIcon} />
-                  </div>
-                </th>
-                <th>
-                  <div className={styles.thContent}>
-                    Date <ChevronsUpDown size={14} className={styles.sortIcon} />
-                  </div>
-                </th>
-                <th>
-                  <div className={styles.thContent}>
-                    Link <ChevronsUpDown size={14} className={styles.sortIcon} />
-                  </div>
-                </th>
+                <th>Type</th>
+                <th>Reference No</th>
+                <th>Title</th>
+                <th>Direction</th>
+                <th>Date</th>
+                <th className={styles.actionColumn}>Actions</th>
               </tr>
             </thead>
             <tbody>
+               {/* Placeholder Row */}
+               {/* <tr>
+                 <td><span className={styles.typeBadge}><Mail size={14}/> Letter</span></td>
+                 <td className={styles.refText}>REF-2023-001</td>
+                 <td className={styles.titleText}>Admission Application</td>
+                 <td>
+                    <span className={`${styles.statusBadge} ${styles.received}`}>
+                        <ArrowDownLeft size={14} /> Received
+                    </span>
+                 </td>
+                 <td>Jan 18, 2026</td>
+                 <td>
+                    <div className={styles.actions}>
+                        <Button variant="ghost" size="sm" icon={<Download size={16}/>} />
+                    </div>
+                 </td>
+               </tr> */}
               <tr>
-                <td colSpan={5} className={styles.noData}>No data available in table</td>
+                <td colSpan={6} className={styles.noData}>
+                  <div className={styles.noDataContent}>
+                    <Package size={48} className={styles.noDataIcon} />
+                    <p>No postal records found</p>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
 
+        {/* Pagination */}
         <div className={styles.pagination}>
-          <button className={styles.pageBtn}>Prev</button>
-          <button className={styles.pageBtn}>Next</button>
+          <span className={styles.pageInfo}>Showing 0 to 0 of 0 entries</span>
+          <div className={styles.pageButtons}>
+            <Button variant="ghost" size="sm" disabled>Previous</Button>
+            <Button variant="ghost" size="sm" disabled>Next</Button>
+          </div>
         </div>
-      </div>
+      </Card>
 
       {/* Add Postal Modal */}
       {isModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Add Postal Record</h2>
+              <div className={styles.modalTitleContainer}>
+                <div className={styles.modalIconBox}>
+                    <Mail size={20} color="#556ee6" />
+                </div>
+                <h2 className={styles.modalTitle}>Add Postal Record</h2>
+              </div>
               <button className={styles.closeButton} onClick={() => setIsModalOpen(false)}>
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSubmit}>
+            
+            <form onSubmit={handleSubmit} className={styles.modalForm}>
               <div className={styles.modalBody}>
                 <div className={styles.formGrid}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>
-                      Direction <span className={styles.required}>*</span>
-                    </label>
-                    <select
-                      name="direction"
-                      className={styles.select}
-                      value={formData.direction}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="Received">Received</option>
-                      <option value="Dispatch">Dispatch</option>
-                    </select>
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>
-                      Date <span className={styles.required}>*</span>
-                    </label>
-                    <input
-                      type="date"
-                      name="date"
-                      className={styles.input}
-                      value={formData.date}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+                  <Select
+                    label="Direction"
+                    name="direction"
+                    options={modalDirectionOptions}
+                    value={formData.direction}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Input
+                    label="Date"
+                    name="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Postal Type</label>
-                  <select
+                <div className={styles.formGrid}>
+                  <Select
+                    label="Postal Type"
                     name="postalType"
-                    className={styles.select}
+                    options={postalTypeOptions}
                     value={formData.postalType}
                     onChange={handleChange}
-                  >
-                    <option value="">Select Type</option>
-                    <option value="Letter">Letter</option>
-                    <option value="Parcel">Parcel</option>
-                  </select>
+                    required
+                  />
+                  <Input
+                    label="Reference No"
+                    name="referenceNo"
+                    value={formData.referenceNo}
+                    onChange={handleChange}
+                    placeholder="e.g. REF-001"
+                  />
                 </div>
 
                 <div className={styles.formGrid}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>From Title</label>
-                    <input
-                      type="text"
-                      name="fromTitle"
-                      className={styles.input}
-                      value={formData.fromTitle}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>To Title</label>
-                    <input
-                      type="text"
-                      name="toTitle"
-                      className={styles.input}
-                      value={formData.toTitle}
-                      onChange={handleChange}
-                    />
-                  </div>
+                  <Input
+                    label="From Title"
+                    name="fromTitle"
+                    value={formData.fromTitle}
+                    onChange={handleChange}
+                    placeholder="Sender Name/Title"
+                  />
+                  <Input
+                    label="To Title"
+                    name="toTitle"
+                    value={formData.toTitle}
+                    onChange={handleChange}
+                    placeholder="Receiver Name/Title"
+                  />
                 </div>
 
                 <div className={styles.formGrid}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>Reference No</label>
-                    <input
-                      type="text"
-                      name="referenceNo"
-                      className={styles.input}
-                      value={formData.referenceNo}
-                      onChange={handleChange}
-                    />
+                  <Input
+                    label="Courier Name"
+                    name="courierName"
+                    value={formData.courierName}
+                    onChange={handleChange}
+                    placeholder="e.g. DHL, FedEx"
+                  />
+                  <div className={styles.fileUploadGroup}>
+                     <label className={styles.fieldLabel}>Attachment</label>
+                     <div className={styles.fileInputWrapper}>
+                        <label htmlFor="file-upload" className={styles.fileLabel}>
+                            <Upload size={16} /> Choose File
+                        </label>
+                        <input 
+                            id="file-upload" 
+                            type="file" 
+                            onChange={handleFileChange} 
+                            className={styles.hiddenInput} 
+                        />
+                        <span className={styles.fileName}>
+                            {formData.attachment ? formData.attachment.name : 'No file chosen'}
+                        </span>
+                     </div>
                   </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>Courier Name</label>
-                    <input
-                      type="text"
-                      name="courierName"
-                      className={styles.input}
-                      value={formData.courierName}
-                      onChange={handleChange}
+                </div>
+                
+                <div className={styles.formFull}>
+                    <Input
+                        label="Note"
+                        name="note"
+                        value={formData.note}
+                        onChange={handleChange}
+                        multiline
+                        rows={2}
+                        placeholder="Additional notes..."
                     />
-                  </div>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Attachment</label>
-                  <div className={styles.fileInputContainer}>
-                    <label className={styles.fileButton}>
-                      Choose File
-                      <input type="file" style={{ display: 'none' }} onChange={handleFileChange} />
-                    </label>
-                    <span className={styles.fileName}>
-                      {formData.attachment ? formData.attachment.name : 'No file chosen'}
-                    </span>
-                  </div>
-                </div>
               </div>
               <div className={styles.modalFooter}>
-                <button type="submit" className={styles.submitButton}>
-                  Save Record
-                </button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    onClick={() => setIsModalOpen(false)}
+                >
+                    Cancel
+                </Button>
+                <Button type="submit">Save Record</Button>
               </div>
             </form>
           </div>

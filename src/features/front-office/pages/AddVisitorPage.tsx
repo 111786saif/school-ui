@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Save, ArrowLeft } from 'lucide-react';
 import styles from './AddVisitorPage.module.css';
+
+// Standardized UI Components
+import PageHeader from '../../../components/ui/PageHeader';
+import Button from '../../../components/ui/Button';
+import Card from '../../../components/ui/Card';
+import Input from '../../../components/ui/Input';
+import Select from '../../../components/ui/Select';
 
 const AddVisitorPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,9 +18,11 @@ const AddVisitorPage: React.FC = () => {
     checkInTime: new Date().toISOString().slice(0, 16), // Format: YYYY-MM-DDTHH:MM
     purpose: '',
     numberOfPersons: 1,
+    note: '',
+    idProof: '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -27,86 +37,124 @@ const AddVisitorPage: React.FC = () => {
     navigate('/front-office/visitors');
   };
 
+  const purposeOptions = [
+    { value: '', label: 'Select Purpose', disabled: true },
+    { value: 'interview', label: 'Interview' },
+    { value: 'parent-meet', label: 'Parent Meet' },
+    { value: 'admission', label: 'Admission' },
+    { value: 'vendor', label: 'Vendor Visit' },
+    { value: 'official', label: 'Official Visit' },
+  ];
+
+  const idProofOptions = [
+    { value: '', label: 'Select ID Proof', disabled: true },
+    { value: 'aadhar', label: 'Aadhar Card' },
+    { value: 'pan', label: 'PAN Card' },
+    { value: 'driving-license', label: 'Driving License' },
+    { value: 'voter-id', label: 'Voter ID' },
+    { value: 'other', label: 'Other' },
+  ];
+
   return (
     <div className={styles.pageContainer}>
-      <div className={styles.pageHeader}>
-        <div>
-          <h1 className={styles.title}>Add Visitor</h1>
-          <div className={styles.breadcrumbs}>Dashboard / Visitors / Add</div>
-        </div>
-      </div>
+      <PageHeader 
+        title="Add Visitor" 
+        breadcrumbs="Dashboard / Front Office / Visitors / Add"
+        actions={
+          <Button 
+            variant="ghost" 
+            icon={<ArrowLeft size={18} />} 
+            onClick={() => navigate('/front-office/visitors')}
+          >
+            Back to List
+          </Button>
+        }
+      />
 
-      <div className={styles.contentCard}>
-        <h2 className={styles.cardTitle}>Visitor Details</h2>
+      <Card title="Visitor Details" className={styles.formCard}>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGrid}>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>
-                Visitor Name <span className={styles.required}>*</span>
-              </label>
-              <input
-                type="text"
-                name="visitorName"
-                className={styles.input}
-                value={formData.visitorName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Phone</label>
-              <input
-                type="tel"
-                name="phone"
-                className={styles.input}
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>
-                Check In Time <span className={styles.required}>*</span>
-              </label>
-              <input
-                type="datetime-local"
-                name="checkInTime"
-                className={styles.input}
-                value={formData.checkInTime}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Purpose</label>
-              <select
-                name="purpose"
-                className={styles.select}
-                value={formData.purpose}
-                onChange={handleChange}
-              >
-                <option value="">Select Purpose</option>
-                <option value="interview">Interview</option>
-                <option value="parent-meet">Parent Meet</option>
-                <option value="admission">Admission</option>
-              </select>
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Number of Persons</label>
-              <input
-                type="number"
-                name="numberOfPersons"
-                className={styles.input}
-                min="1"
-                value={formData.numberOfPersons}
-                onChange={handleChange}
-              />
-            </div>
+            <Input
+              label="Visitor Name"
+              name="visitorName"
+              placeholder="Enter visitor name"
+              value={formData.visitorName}
+              onChange={handleChange}
+              required
+            />
+            
+            <Input
+              label="Phone Number"
+              name="phone"
+              type="tel"
+              placeholder="Enter phone number"
+              value={formData.phone}
+              onChange={handleChange}
+            />
+
+            <Select
+              label="Purpose"
+              name="purpose"
+              options={purposeOptions}
+              value={formData.purpose}
+              onChange={handleChange}
+              required
+            />
+
+            <Input
+              label="Check In Time"
+              name="checkInTime"
+              type="datetime-local"
+              value={formData.checkInTime}
+              onChange={handleChange}
+              required
+            />
+
+            <Input
+              label="Number of Persons"
+              name="numberOfPersons"
+              type="number"
+              min="1"
+              value={formData.numberOfPersons}
+              onChange={handleChange}
+            />
+
+            <Select
+              label="ID Proof (Optional)"
+              name="idProof"
+              options={idProofOptions}
+              value={formData.idProof}
+              onChange={handleChange}
+            />
+
+            <Input
+              label="Note / Remarks"
+              name="note"
+              placeholder="Any additional notes..."
+              value={formData.note}
+              onChange={handleChange}
+              multiline
+              className={styles.fullWidth}
+            />
           </div>
-          <button type="submit" className={styles.submitButton}>
-            Check In
-          </button>
+
+          <div className={styles.formActions}>
+            <Button 
+              type="button" 
+              variant="secondary" 
+              onClick={() => navigate('/front-office/visitors')}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              icon={<Save size={18} />}
+            >
+              Save Visitor
+            </Button>
+          </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };
