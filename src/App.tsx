@@ -32,6 +32,13 @@ import AddStaffPage from './features/peoples/pages/AddStaffPage';
 import PromoteStudentPage from './features/peoples/pages/PromoteStudentPage';
 import RollNumbersPage from './features/peoples/pages/RollNumbersPage';
 
+// Features - Settings
+import AcademicYearSettingsPage from './features/settings/pages/AcademicYearSettingsPage';
+import HouseSettingsPage from './features/settings/pages/HouseSettingsPage';
+import AdditionalActivitiesPage from './features/settings/pages/AdditionalActivitiesPage';
+import GeneralSettingsPage from './features/settings/pages/GeneralSettingsPage';
+import RolesPermissionsPage from './features/settings/pages/RolesPermissionsPage';
+
 import './App.css';
 
 const App: React.FC = () => {
@@ -79,7 +86,18 @@ const App: React.FC = () => {
               <Route path="roll-numbers" element={<RollNumbersPage />} />
               
               <Route path="courses" element={<div className="card"><h3>Courses Module</h3><p>Content coming soon...</p></div>} />
-              <Route path="settings" element={<div className="card"><h3>Settings</h3><p>Manage your preferences here.</p></div>} />
+              
+              {/* Settings Routes */}
+              <Route path="settings">
+                <Route index element={<GeneralSettingsPage />} /> {/* Default to General */}
+                <Route path="academic-year" element={<AcademicYearSettingsPage />} />
+                <Route path="house" element={<HouseSettingsPage />} />
+                <Route path="additional-activities" element={<AdditionalActivitiesPage />} />
+                <Route path="general" element={<GeneralSettingsPage />} />
+                <Route path="roles-permissions" element={<RolesPermissionsPage />} />
+              </Route>
+
+              <Route path="settings-old" element={<div className="card"><h3>Settings</h3><p>Manage your preferences here.</p></div>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

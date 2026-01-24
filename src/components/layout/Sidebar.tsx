@@ -173,7 +173,18 @@ const MENU_ITEMS: MenuSection[] = [
   {
     section: 'SETTINGS',
     items: [
-      { label: 'App Settings', path: '/settings', icon: Settings, subItems: [] }
+      { 
+        label: 'App Settings', 
+        path: '/settings', 
+        icon: Settings, 
+        subItems: [
+          { label: 'Academic Year Settings', path: '/settings/academic-year' },
+          { label: 'House', path: '/settings/house' },
+          { label: 'Additional Activities', path: '/settings/additional-activities' },
+          { label: 'General Settings', path: '/settings/general' },
+          { label: 'Roles & Permissions', path: '/settings/roles-permissions' }
+        ]
+      }
     ]
   }
 ];
