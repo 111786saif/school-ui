@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft, Loader2 } from 'lucide-react';
 import styles from './AddVisitorPage.module.css';
 
 // Standardized UI Components
@@ -9,9 +9,13 @@ import Button from '../../../components/ui/Button';
 import Card from '../../../components/ui/Card';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
+import { visitorsService, CreateVisitorDto } from '../api/visitorsService';
 
 const AddVisitorPage: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     visitorName: '',
     phone: '',
@@ -20,6 +24,7 @@ const AddVisitorPage: React.FC = () => {
     numberOfPersons: 1,
     note: '',
     idProof: '',
+    idProofNumber: ''
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -30,29 +35,50 @@ const AddVisitorPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form Submitted:', formData);
-    // Here you would typically call an API to save the visitor
-    navigate('/front-office/visitors');
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Transform data to match API DTO
+      const payload: CreateVisitorDto = {
+        visitorName: formData.visitorName,
+        phoneNumber: formData.phone,
+        purpose: formData.purpose,
+        numberOfPersons: Number(formData.numberOfPersons),
+        checkInTime: new Date(formData.checkInTime).toISOString(), // Convert to ISO string for API
+        idProofType: formData.idProof || undefined,
+        idProofNumber: formData.idProofNumber || undefined,
+        remarks: formData.note || undefined
+      };
+
+      await visitorsService.create(payload);
+      navigate('/front-office/visitors');
+    } catch (err: any) {
+      console.error('Failed to create visitor:', err);
+      setError(err.message || 'Failed to save visitor. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const purposeOptions = [
     { value: '', label: 'Select Purpose', disabled: true },
+    { value: 'admission inquiry', label: 'Admission Inquiry' },
+    { value: 'parent meet', label: 'Parent Meet' },
     { value: 'interview', label: 'Interview' },
-    { value: 'parent-meet', label: 'Parent Meet' },
-    { value: 'admission', label: 'Admission' },
     { value: 'vendor', label: 'Vendor Visit' },
     { value: 'official', label: 'Official Visit' },
   ];
 
   const idProofOptions = [
     { value: '', label: 'Select ID Proof', disabled: true },
-    { value: 'aadhar', label: 'Aadhar Card' },
-    { value: 'pan', label: 'PAN Card' },
-    { value: 'driving-license', label: 'Driving License' },
-    { value: 'voter-id', label: 'Voter ID' },
-    { value: 'other', label: 'Other' },
+    { value: 'Adhaar Card', label: 'Aadhar Card' },
+    { value: 'PAN Card', label: 'PAN Card' },
+    { value: 'Driving License', label: 'Driving License' },
+    { value: 'Voter ID', label: 'Voter ID' },
+    { value: 'Other', label: 'Other' },
   ];
 
   return (
@@ -72,6 +98,19 @@ const AddVisitorPage: React.FC = () => {
       />
 
       <Card title="Visitor Details" className={styles.formCard}>
+        {error && (
+          <div style={{ 
+            padding: '12px', 
+            backgroundColor: '#fee2e2', 
+            color: '#991b1b', 
+            borderRadius: '8px', 
+            marginBottom: '20px',
+            fontSize: '14px'
+          }}>
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className={styles.formGrid}>
             <Input
@@ -90,6 +129,7 @@ const AddVisitorPage: React.FC = () => {
               placeholder="Enter phone number"
               value={formData.phone}
               onChange={handleChange}
+              required
             />
 
             <Select
@@ -117,14 +157,23 @@ const AddVisitorPage: React.FC = () => {
               min="1"
               value={formData.numberOfPersons}
               onChange={handleChange}
+              required
             />
 
             <Select
-              label="ID Proof (Optional)"
+              label="ID Proof Type (Optional)"
               name="idProof"
               options={idProofOptions}
               value={formData.idProof}
               onChange={handleChange}
+            />
+
+            <Input
+               label="ID Proof Number (Optional)"
+               name="idProofNumber"
+               placeholder="Enter ID number"
+               value={formData.idProofNumber}
+               onChange={handleChange}
             />
 
             <Input
@@ -143,14 +192,16 @@ const AddVisitorPage: React.FC = () => {
               type="button" 
               variant="secondary" 
               onClick={() => navigate('/front-office/visitors')}
+              disabled={loading}
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
-              icon={<Save size={18} />}
+              icon={loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+              disabled={loading}
             >
-              Save Visitor
+              {loading ? 'Saving...' : 'Save Visitor'}
             </Button>
           </div>
         </form>
