@@ -108,6 +108,25 @@
   text-align: center;
 }
 
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.actionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #a3aed0;
+  transition: color 0.2s;
+}
+
+.actionBtn:hover {
+  color: #2b3674;
+}
+
 /* No Data State */
 .noData {
   text-align: center;
