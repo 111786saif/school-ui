@@ -39,6 +39,9 @@ import AdditionalActivitiesPage from './features/settings/pages/AdditionalActivi
 import GeneralSettingsPage from './features/settings/pages/GeneralSettingsPage';
 import RolesPermissionsPage from './features/settings/pages/RolesPermissionsPage';
 
+// Features - Academic
+import ClassRoomPage from './features/academic/pages/ClassRoomPage';
+
 import './App.css';
 
 const App: React.FC = () => {
@@ -85,7 +88,9 @@ const App: React.FC = () => {
               <Route path="promote-student" element={<PromoteStudentPage />} />
               <Route path="roll-numbers" element={<RollNumbersPage />} />
               
-              <Route path="courses" element={<div className="card"><h3>Courses Module</h3><p>Content coming soon...</p></div>} />
+              {/* Academic Routes */}
+              <Route path="academic/classrooms" element={<ClassRoomPage />} />
+              <Route path="academic/courses" element={<div className="card"><h3>Courses Module</h3><p>Content coming soon...</p></div>} />
               
               {/* Settings Routes */}
               <Route path="settings">

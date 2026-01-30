@@ -169,9 +169,11 @@
 }
 
 .subText {
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
-  margin-top: 2px;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Status Badges */
@@ -179,9 +181,10 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 4px;
+  font-size: 11px;
   font-weight: 600;
+  text-transform: uppercase;
 }
 
 .statusActive {
@@ -210,14 +213,16 @@
   text-decoration: line-through;
 }
 
-.sourceTag {
-  display: inline-block;
-  padding: 2px 8px;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
+/* Reference Specific Styles */
+.statusCannotEdit {
+  background-color: #7dd3fc; /* Light blue/teal */
+  color: #0c4a6e;
+}
+
+.statusNew {
+  background-color: #2563eb; /* Blue */
+  color: white;
   border-radius: 4px;
-  font-size: 12px;
-  color: #64748b;
 }
 
 .urgentDate {
@@ -226,7 +231,7 @@
 }
 
 .actionColumn {
-  width: 140px;
+  width: 200px; /* Wider for buttons */
   text-align: right;
 }
 
@@ -236,33 +241,37 @@
   gap: 8px;
 }
 
-.actionBtn {
-  width: 32px;
-  height: 32px;
+/* New Button Styles */
+.btnFollowUp {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 6px 12px;
   border-radius: 6px;
-  border: 1px solid transparent;
-  background-color: transparent;
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 }
 
-.actionBtn:hover {
-  background-color: #f1f5f9;
-  color: #2b3674;
+.btnFollowUp:hover {
+  background-color: #1d4ed8;
 }
 
-.actionBtn.primary:hover {
-  background-color: #e0e7ff;
-  color: #4338ca;
+.btnClose {
+  background-color: #16a34a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.actionBtn.danger:hover {
-  background-color: #fee2e2;
-  color: #991b1b;
+.btnClose:hover {
+  background-color: #15803d;
 }
 
 /* No Data */
@@ -302,4 +311,92 @@
 .pageButtons {
   display: flex;
   gap: 8px;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.3s ease-out;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f4f7fe;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2b3674;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #a3aed0;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #2b3674;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.modalBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modalFooter {
+  padding: 20px 24px;
+  border-top: 1px solid #f4f7fe;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
